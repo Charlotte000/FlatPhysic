@@ -1,6 +1,7 @@
 ﻿namespace FlatPhysic.SFMLDrawer;
 
 using FlatPhysic.Bodies;
+using FlatPhysic.Constraints;
 using SFML.Graphics;
 
 public class SFMLDrawer
@@ -25,9 +26,20 @@ public class SFMLDrawer
     public void Draw(RenderTarget target, RenderStates renderStates)
     {
         // Springs
-        foreach (var spring in this.physicScene.Springs)
+        foreach (var constraint in this.physicScene.Constraints)
         {
-            SFMLDrawer.Lines(new[] { spring.GetMountPointA(), spring.GetMountPointB() }, Color.Yellow, target, renderStates);
+            switch (constraint)
+            {
+                case Spring spring:
+                    SFMLDrawer.Lines(new[] { spring.GetMountPointA(), spring.GetMountPointB() }, Color.Yellow, target, renderStates);
+                    break;
+                case WorldAttachment worldAttachment:
+                    SFMLDrawer.Circle(worldAttachment.GetMountPoint(), 1, Color.Magenta, target, renderStates);
+                    break;
+                case BodyAttachment bodyAttachment:
+                    SFMLDrawer.Circle(bodyAttachment.GetMountPointA(), 1, Color.Magenta, target, renderStates);
+                    break;
+            }
         }
 
         foreach (var body in this.physicScene.Bodies)

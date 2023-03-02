@@ -2,6 +2,7 @@
 
 using FlatPhysic;
 using FlatPhysic.Bodies;
+using FlatPhysic.Constraints;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -34,10 +35,21 @@ public class MonoDrawer : DrawableGameComponent
 
     public override void Draw(GameTime gameTime)
     {
-        // Springs
-        foreach (var spring in this.physicScene.Springs)
+        // Constraints
+        foreach (var constraint in this.physicScene.Constraints)
         {
-            this.Lines(new[] { spring.GetMountPointA(), spring.GetMountPointB() }, Color.DarkGoldenrod);
+            switch (constraint)
+            {
+                case Spring spring:
+                    this.Lines(new[] { spring.GetMountPointA(), spring.GetMountPointB() }, Color.DarkGoldenrod);
+                    break;
+                case WorldAttachment worldAttachment:
+                    this.Circle(worldAttachment.GetMountPoint(), 1, Color.Magenta, 5);
+                    break;
+                case BodyAttachment bodyAttachment:
+                    this.Circle(bodyAttachment.GetMountPointA(), 1, Color.Magenta, 5);
+                    break;
+            }
         }
 
         foreach (var body in this.physicScene.Bodies)

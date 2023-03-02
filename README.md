@@ -10,7 +10,10 @@
 - Friction between bodies and air
 - Bounding box detection for efficiency
 - Bodies freezing for efficiency
-- Springs
+- Constraints:
+    - Springs
+    - Fixed point attachments
+    - Body to body attachments
 - OnCollision events
 - Simple scene drawing libraries for SFML and MonoGame
 
@@ -48,7 +51,7 @@ public class Game1 : Game
 	    this.physicScene.Bodies.Add(PolygonBody.CreateBox(new FlatVector(0, 20), new FlatVector(10, 10), 5));
 
 	    // Create a spring between the last two bodies
-	    this.physicScene.Springs.Add(new Spring(physicScene.Bodies[^1], FlatVector.Zero, physicScene.Bodies[^2], FlatVector.Zero, 10, 20, 20));
+	    this.physicScene.Constraints.Add(new Spring(physicScene.Bodies[^1], FlatVector.Zero, physicScene.Bodies[^2], FlatVector.Zero, 10, 20, 20));
 
 	    // Create a collision event
 	    this.physicScene.Bodies[0].OnCollision += (s, e) =>

@@ -1,6 +1,7 @@
 ﻿namespace FlatPhysic;
 
 using FlatPhysic.Bodies;
+using FlatPhysic.Constraints;
 using FlatPhysic.Utils;
 
 public class PhysicScene
@@ -63,9 +64,9 @@ public class PhysicScene
     public List<RigidBody> Bodies { get; } = new();
 
     /// <summary>
-    /// List of <see cref="Spring"/> in the scene
+    /// List of <see cref="IConstraint"/> in the scene
     /// </summary>
-    public List<Spring> Springs { get; } = new();
+    public List<IConstraint> Constraints { get; } = new();
 
     /// <summary>
     /// Gravity force
@@ -78,7 +79,7 @@ public class PhysicScene
     /// <param name="dT">Delta time</param>
     /// <remarks>
     /// <list type="bullet">
-    /// <item>Spring forces</item>
+    /// <item>Constraints</item>
     /// <item>Gravity force</item>
     /// <item>Detect and solve collisions</item>
     /// <item>Friction between bodies and air</item>
@@ -93,10 +94,10 @@ public class PhysicScene
         {
             this.CollisionManifolds.Clear();
 
-            // Apply spring forces
-            foreach (var spring in this.Springs)
+            // Apply constraints
+            foreach (var constraint in this.Constraints)
             {
-                spring.Apply(dT);
+                constraint.Apply(dT);
             }
 
             for (int i = 0; i < this.Bodies.Count; i++)
