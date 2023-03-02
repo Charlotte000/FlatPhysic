@@ -156,8 +156,5 @@ internal static class CollisionSolver
             manifold.BodyA.ApplyImpulse(collisionPoint, -impulse);
             manifold.BodyB.ApplyImpulse(collisionPoint, impulse);
         }
-
-        manifold.BodyA.InvokeOnCollision(manifold.BodyB, manifold.Normal);
-        manifold.BodyB.InvokeOnCollision(manifold.BodyA, -manifold.Normal);
     }
 }

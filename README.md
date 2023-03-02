@@ -42,16 +42,16 @@ public class Game1 : Game
         this.physicScene = new PhysicScene();
 
         // Create a static box
-	    this.physicScene.Bodies.Add(PolygonBody.CreateBox(new FlatVector(0, 400), new FlatVector(500, 20)));
+	    this.physicScene.AddBody(PolygonBody.CreateBox(new FlatVector(0, 400), new FlatVector(500, 20)));
 
 	    // Create a circle rigid body
-	    this.physicScene.Bodies.Add(new CircleBody(new FlatVector(0, 0), 10, 1));
+	    this.physicScene.AddBody(new CircleBody(new FlatVector(0, 0), 10, 1));
 
 	    // Create a rigid box
-	    this.physicScene.Bodies.Add(PolygonBody.CreateBox(new FlatVector(0, 20), new FlatVector(10, 10), 5));
+	    this.physicScene.AddBody(PolygonBody.CreateBox(new FlatVector(0, 20), new FlatVector(10, 10), 5));
 
 	    // Create a spring between the last two bodies
-	    this.physicScene.Constraints.Add(new Spring(physicScene.Bodies[^1], FlatVector.Zero, physicScene.Bodies[^2], FlatVector.Zero, 10, 20, 20));
+	    this.physicScene.AddConstraint(new Spring(physicScene.Bodies[^1], FlatVector.Zero, physicScene.Bodies[^2], FlatVector.Zero, 10, 20, 20));
 
 	    // Create a collision event
 	    this.physicScene.Bodies[0].OnCollision += (s, e) =>
@@ -74,7 +74,7 @@ public class Game1 : Game
         // Add a new circle body whem pressing the W key
         if (keyboard.IsKeyDown(Keys.W))
         {
-            this.physicScene.Bodies.Add(new CircleBody(mouse.Position.ToFlat(), 10, 1));
+            this.physicScene.AddBody(new CircleBody(mouse.Position.ToFlat(), 10, 1));
         }
 
         // Update physic scene

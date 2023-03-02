@@ -24,6 +24,9 @@ public readonly record struct WorldAttachment(RigidBody Body, FlatVector BodyMou
     public FlatVector GetMountPoint()
         => this.Body.Position + this.BodyMount.Rotate(this.Body.Angle);
 
+    public bool Contains(RigidBody body)
+        => this.Body == body;
+
     public void Apply(float dT)
     {
         var mount = this.GetMountPoint();

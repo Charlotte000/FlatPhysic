@@ -3,10 +3,21 @@
 using FlatPhysic.Bodies;
 using FlatPhysic.Constraints;
 using FlatPhysic.Utils;
+using System.Collections.ObjectModel;
 
 public class PhysicScene
 {
     public const float Resolution = .5f;
+
+    private readonly List<RigidBody> bodies = new();
+
+    private readonly List<IConstraint> constraints = new();
+
+    public PhysicScene()
+    {
+        this.Bodies = this.bodies.AsReadOnly();
+        this.Constraints = this.constraints.AsReadOnly();
+    }
 
     /// <summary>
     /// List of collision manifolds to be resolved
@@ -61,12 +72,12 @@ public class PhysicScene
     /// <summary>
     /// List of <see cref="RigidBody"/> in the scene
     /// </summary>
-    public List<RigidBody> Bodies { get; } = new();
+    public ReadOnlyCollection<RigidBody> Bodies { get; }
 
     /// <summary>
     /// List of <see cref="IConstraint"/> in the scene
     /// </summary>
-    public List<IConstraint> Constraints { get; } = new();
+    public ReadOnlyCollection<IConstraint> Constraints { get; }
 
     /// <summary>
     /// Gravity force
@@ -95,26 +106,26 @@ public class PhysicScene
             this.CollisionManifolds.Clear();
 
             // Apply constraints
-            foreach (var constraint in this.Constraints)
+            foreach (var constraint in this.constraints)
             {
                 constraint.Apply(dT);
             }
 
-            for (int i = 0; i < this.Bodies.Count; i++)
+            for (int i = 0; i < this.bodies.Count; i++)
             {
                 // Apply gravity
-                if (!this.Bodies[i].IsStatic && !this.Bodies[i].IsFrozen)
+                if (!this.bodies[i].IsStatic && !this.bodies[i].IsFrozen)
                 {
-                    this.Bodies[i].LinearVelocity += this.Gravity * dT;
+                    this.bodies[i].LinearVelocity += this.Gravity * dT;
                 }
 
                 // Collision detection
-                for (int j = i + 1; j < this.Bodies.Count; j++)
+                for (int j = i + 1; j < this.bodies.Count; j++)
                 {
-                    RigidBody bodyA = this.Bodies[i], bodyB = this.Bodies[j];
+                    RigidBody bodyA = this.bodies[i], bodyB = this.bodies[j];
 
                     if ((bodyA.IsStatic && bodyB.IsStatic) ||
-                        this.Constraints.Any(c => c is BodyAttachment b && b.DisableCollision && b.Contains(bodyA) && b.Contains(bodyB)))
+                        this.constraints.Any(c => c is BodyAttachment b && b.DisableCollision && b.Contains(bodyA) && b.Contains(bodyB)))
                     {
                         continue;
                     }
@@ -138,17 +149,21 @@ public class PhysicScene
                     }
                 }
 
-                this.Bodies[i].Move(dT);
+                this.bodies[i].Move(dT);
             }
 
             // Collision solving
             foreach (var manifold in this.CollisionManifolds)
             {
                 CollisionSolver.Push(manifold);
+
+                // Invoke OnCollision event
+                manifold.BodyA.InvokeOnCollision(manifold.BodyB, manifold.Normal);
+                manifold.BodyB.InvokeOnCollision(manifold.BodyA, -manifold.Normal);
             }
 
             // Air drag
-            foreach (var body in this.Bodies)
+            foreach (var body in this.bodies)
             {
                 body.ApplyAirFriction(dT);
             }
@@ -157,10 +172,28 @@ public class PhysicScene
         // Try to freeze bodies
         if (this.AllowFreeze)
         {
-            foreach (var body in this.Bodies)
+            foreach (var body in this.bodies)
             {
                 body.TryFreeze(this.MinLinearVelocity, this.MinAngularVelocity, this.FreezeDelay);
             }
         }
     }
+
+    public void AddBody(RigidBody body)
+        => this.bodies.Add(body);
+
+    /// <summary>
+    /// Ensures that all related constraints are also removed
+    /// </summary>
+    public void RemoveBody(RigidBody body)
+    {
+        this.constraints.RemoveAll(c => c.Contains(body));
+        this.bodies.Remove(body);
+    }
+
+    public void AddConstraint(IConstraint constraint)
+        => this.constraints.Add(constraint);
+
+    public void RemoveConstraint(IConstraint constraint)
+        => this.constraints.Remove(constraint);
 }

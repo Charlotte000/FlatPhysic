@@ -14,7 +14,7 @@ public static class Program
         window.Closed += (_, _) => window.Close();
 
         var physicScene = new PhysicScene();
-        physicScene.Bodies.Add(new InverseCircleBody(new(250, 250), 100));
+        physicScene.AddBody(new InverseCircleBody(new(250, 250), 100));
 
         var drawer = new SFMLDrawer(physicScene);
 
@@ -24,7 +24,7 @@ public static class Program
 
             if (Keyboard.IsKeyPressed(Keyboard.Key.W))
             {
-                physicScene.Bodies.Add(new CircleBody(Mouse.GetPosition(window).ToFlat(), 10, 1));
+                physicScene.AddBody(new CircleBody(Mouse.GetPosition(window).ToFlat(), 10, 1));
             }
 
             physicScene.Update(.016f);

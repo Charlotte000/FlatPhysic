@@ -36,6 +36,9 @@ public readonly record struct Spring(
     public FlatVector GetMountPointB()
         => this.BodyB.Position + this.MountB.Rotate(this.BodyB.Angle);
 
+    public bool Contains(RigidBody body)
+        => this.BodyA == body || this.BodyB == body;
+
     public void Apply(float dT)
     {
         var p1 = this.GetMountPointA();

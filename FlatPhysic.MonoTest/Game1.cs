@@ -20,7 +20,13 @@ public class Game1 : Game
         this.physicScene = new() { AllowFreeze = false };
         //this.TargetElapsedTime = TimeSpan.FromSeconds(1d / 2);
 
-        this.physicScene.Bodies.Add(PolygonBody.CreateBox(new(250, 450), new(510, 20)));
+        this.Window.KeyDown += (s, e) =>
+        {
+            if (e.Key == Keys.E)
+                this.physicScene.RemoveBody(this.physicScene.Bodies[^1]);
+        };
+
+        this.physicScene.AddBody(PolygonBody.CreateBox(new(250, 450), new(510, 20)));
 
         var bs = new RigidBody[20];
         var size = 10f;
@@ -28,7 +34,7 @@ public class Game1 : Game
         for (int i = 0; i < bs.Length; i++)
         {
             var a = PolygonBody.CreateBox(new(100 + (size * i), 150), new(size, 5), 1);
-            this.physicScene.Bodies.Add(a);
+            this.physicScene.AddBody(a);
             bs[i] = a;
         }
 
@@ -37,16 +43,17 @@ public class Game1 : Game
             var a = bs[i];
             if (i == 0)
             {
-                this.physicScene.Constraints.Add(new WorldAttachment(a, new(-size / 2, 0)));
+                this.physicScene.AddConstraint(new WorldAttachment(a, new(-size / 2, 0)));
             }
+
             if (i == bs.Length - 1)
             {
-                this.physicScene.Constraints.Add(new WorldAttachment(a, new(size / 2, 0)));
+                this.physicScene.AddConstraint(new WorldAttachment(a, new(size / 2, 0)));
             }
             else
             {
                 var b = bs[i + 1];
-                this.physicScene.Constraints.Add(new BodyAttachment(a, new(size / 2, 0), b, new(-size / 2, 0)));
+                this.physicScene.AddConstraint(new BodyAttachment(a, new(size / 2, 0), b, new(-size / 2, 0)));
             }
         }
 
@@ -60,7 +67,7 @@ public class Game1 : Game
 
         if (keyboard.IsKeyDown(Keys.W))
         {
-            this.physicScene.Bodies.Add(new CircleBody(mouse.Position.ToFlat(), 10, 1));
+            this.physicScene.AddBody(new CircleBody(mouse.Position.ToFlat(), 10, 1));
         }
 
         this.physicScene.Update((float)gameTime.ElapsedGameTime.TotalSeconds);
