@@ -2,6 +2,16 @@
 
 using FlatPhysic.Bodies;
 
+/// <summary>
+/// A spring object
+/// </summary>
+/// <param name="BodyA">The first body to attach</param>
+/// <param name="OriginA">Mounting point relative to the <see cref="RigidBody.Position"/> of the first <see cref="RigidBody"/> without <see cref="RigidBody.Angle"/></param>
+/// <param name="BodyB">The second body to attach</param>
+/// <param name="OriginB">Mounting point relative to the <see cref="RigidBody.Position"/> of the second <see cref="RigidBody"/> without <see cref="RigidBody.Angle"/></param>
+/// <param name="Hardness">Spring strength coefficient</param>
+/// <param name="Damping">Oscillation reduction coefficient</param>
+/// <param name="Length">Spring rest length</param>
 public readonly record struct Spring(
     RigidBody BodyA,
     FlatVector OriginA,

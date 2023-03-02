@@ -1,5 +1,8 @@
 ﻿namespace FlatPhysic;
 
+/// <summary>
+/// 2 dimensional vector
+/// </summary>
 public readonly struct FlatVector
 {
     public static readonly FlatVector Zero = new(0, 0);

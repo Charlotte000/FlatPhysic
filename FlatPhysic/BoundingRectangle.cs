@@ -1,5 +1,11 @@
 ﻿namespace FlatPhysic;
 
+/// <summary>
+/// Collision box
+/// </summary>
+/// <remarks>
+/// The engine does not immediately check for geometry collisions, first it checks for box collisions, which gives a significant performance boost
+/// </remarks>
 public readonly struct BoundingRectangle
 {
     public BoundingRectangle(FlatVector center, FlatVector size)

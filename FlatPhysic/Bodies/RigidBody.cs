@@ -3,6 +3,9 @@
 using FlatPhysic;
 using FlatPhysic.Utils;
 
+/// <summary>
+/// Base class of rigid bodies
+/// </summary>
 public abstract class RigidBody
 {
     private float mass;
@@ -17,6 +20,13 @@ public abstract class RigidBody
 
     private float angle;
 
+    /// <summary>
+    /// Creates a static rigid body
+    /// </summary>
+    /// <param name="position">Position of the body</param>
+    /// <remarks>
+    /// Static bodies have infinite <see cref="RigidBody.Mass"/> and <see cref="RigidBody.Inertia"/>
+    /// </remarks>
     public RigidBody(FlatVector position)
     {
         this.Position = position;
@@ -30,6 +40,11 @@ public abstract class RigidBody
         this.IsStatic = true;
     }
 
+    /// <summary>
+    /// Creates a dynamic rigid body
+    /// </summary>
+    /// <param name="position"><inheritdoc cref="RigidBody.RigidBody(FlatVector)"/></param>
+    /// <param name="mass">Body mass</param>
     public RigidBody(FlatVector position, float mass)
     {
         this.Position = position;
@@ -42,6 +57,14 @@ public abstract class RigidBody
 
     public bool IsStatic { get; set; }
 
+    /// <summary>
+    /// Is the body frozen
+    /// </summary>
+    /// <remarks>
+    /// Frozen bodies are not checked for collisions, which gives an increase in performance
+    /// <para/>
+    /// Check <see cref="PhysicScene.AllowFreeze"/>
+    /// </remarks>
     public bool IsFrozen { get; internal set; }
 
     public BoundingRectangle BoundingBox { get; protected set; }
@@ -62,6 +85,9 @@ public abstract class RigidBody
 
     public float AngularVelocity { get; set; }
 
+    /// <summary>
+    /// The ratio of the change in relative velocity after a collision
+    /// </summary>
     public float Restitution { get; set; } = .2f;
 
     public float StaticFriction { get; set; } = .6f;
@@ -123,12 +149,21 @@ public abstract class RigidBody
         this.UpdateBoundingBox();
     }
 
+    /// <summary>
+    /// Applies an impulse to the body at a <paramref name="point"/>
+    /// </summary>
+    /// <remarks>
+    /// Changes linear and angular velocity
+    /// </remarks>
     public void ApplyImpulse(FlatVector point, FlatVector vector)
     {
         this.LinearVelocity += vector * this.MassInv;
         this.AngularVelocity += FlatVector.Cross(point - this.Position, vector) * this.InertiaInv;
     }
 
+    /// <summary>
+    /// Combination of <see cref="RigidBody.LinearVelocity"/> and <see cref="RigidBody.AngularVelocity"/> at a given point of the body
+    /// </summary>
     public FlatVector AbsoluteVelocity(FlatVector point)
     {
         var perpendicular = (point - this.Position).Perpendicular();

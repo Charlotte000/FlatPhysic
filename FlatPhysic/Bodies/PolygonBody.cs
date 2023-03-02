@@ -2,13 +2,25 @@
 
 using FlatPhysic;
 
+/// <summary>
+/// The polygon body with the specified vertices
+/// </summary>
 public class PolygonBody : RigidBody
 {
+    /// <summary>
+    /// Creates a static polygon body
+    /// </summary>
+    /// <remarks>
+    /// <inheritdoc cref="RigidBody.RigidBody(FlatVector)"/>
+    /// </remarks>
     public PolygonBody(FlatVector position, FlatVector[] vertices) : base(position)
     {
         this.Vertices = vertices;
     }
 
+    /// <summary>
+    /// Creates a dynamic polygon body
+    /// </summary>
     public PolygonBody(FlatVector position, FlatVector[] vertices, float mass) : base(position, mass)
     {
         this.Vertices = vertices;
@@ -18,8 +30,14 @@ public class PolygonBody : RigidBody
         this.Inertia = this.Mass * (sizeSq.X + sizeSq.Y) / 12;
     }
 
+    /// <summary>
+    /// The vertices of the polygon relative to the <see cref="RigidBody.Position"/>
+    /// </summary>
     public FlatVector[] Vertices { get; set; }
 
+    /// <summary>
+    /// Returns the absolute values of the polygon <see cref="PolygonBody.Vertices"/>
+    /// </summary>
     public IEnumerable<FlatVector> AbsoluteVertices()
     {
         foreach (var v in this.Vertices)
@@ -28,6 +46,9 @@ public class PolygonBody : RigidBody
         }
     }
 
+    /// <summary>
+    /// Returns absolute values of pairs of polygon <see cref="PolygonBody.Vertices"/>
+    /// </summary>
     public IEnumerable<(FlatVector a, FlatVector b)> AbsoluteVertexPairs()
     {
         for (int i = 0; i < this.Vertices.Length; i++)
@@ -36,6 +57,10 @@ public class PolygonBody : RigidBody
         }
     }
 
+    /// <summary>
+    /// Returns the values of pairs of polygon <see cref="PolygonBody.Vertices"/> relative to the <see cref="RigidBody.Position"/>
+    /// </summary>
+    /// <returns></returns>
     public IEnumerable<(FlatVector a, FlatVector b)> RelativeVertexPairs()
     {
         for (int i = 0; i < this.Vertices.Length; i++)
@@ -72,17 +97,32 @@ public class PolygonBody : RigidBody
         return new(maxX - minX, maxY - minY);
     }
 
+    /// <summary>
+    /// Creates a static box
+    /// </summary>
+    /// <remarks>
+    /// <inheritdoc cref="RigidBody.RigidBody(FlatVector)"/>
+    /// </remarks>
     public static PolygonBody CreateBox(FlatVector position, FlatVector size)
         => new(
             position,
             new[] { -size / 2, new FlatVector(size.X, -size.Y) / 2, size / 2, new FlatVector(-size.X, size.Y) / 2 });
 
+    /// <summary>
+    /// Creates a dynamic box
+    /// </summary>
     public static PolygonBody CreateBox(FlatVector position, FlatVector size, float mass)
         => new(
             position,
             new[] { -size / 2, new FlatVector(size.X, -size.Y) / 2, size / 2, new FlatVector(-size.X, size.Y) / 2 },
             mass);
 
+    /// <summary>
+    /// Creates a static regular polygon with the specified number of points <paramref name="pointCount"/>
+    /// </summary>
+    /// <remarks>
+    /// <inheritdoc cref="RigidBody.RigidBody(FlatVector)"/>
+    /// </remarks>
     public static PolygonBody CreateRegularPolygon(FlatVector position, FlatVector size, uint pointCount)
         => new(
             position,
@@ -92,6 +132,9 @@ public class PolygonBody : RigidBody
                 return new FlatVector(MathF.Cos(angle), MathF.Sin(angle)) * size;
             }).ToArray());
 
+    /// <summary>
+    /// Creates a dynamic regular polygon with the specified number of points <paramref name="pointCount"/>
+    /// </summary>
     public static PolygonBody CreateRegularPolygon(FlatVector position, FlatVector size, uint pointCount, float mass)
         => new(
             position,
