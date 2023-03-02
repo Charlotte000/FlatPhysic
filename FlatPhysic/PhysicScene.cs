@@ -113,7 +113,8 @@ public class PhysicScene
                 {
                     RigidBody bodyA = this.Bodies[i], bodyB = this.Bodies[j];
 
-                    if (bodyA.IsStatic && bodyB.IsStatic)
+                    if ((bodyA.IsStatic && bodyB.IsStatic) ||
+                        this.Constraints.Any(c => c is BodyAttachment b && b.DisableCollision && b.Contains(bodyA) && b.Contains(bodyB)))
                     {
                         continue;
                     }

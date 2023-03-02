@@ -5,8 +5,6 @@ using FlatPhysic.Constraints;
 using FlatPhysic.MonoDrawer;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
-using System;
-using System.Linq;
 
 public class Game1 : Game
 {
