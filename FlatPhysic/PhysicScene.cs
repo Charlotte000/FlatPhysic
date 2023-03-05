@@ -67,7 +67,7 @@ public class PhysicScene
     /// <remarks>
     /// Enables using <see cref="AllowFreeze"/>
     /// </remarks>
-    public uint FreezeDelay { get; set; } = 10;
+    public uint FreezeDelay { get; set; } = 100;
 
     /// <summary>
     /// List of <see cref="RigidBody"/> in the scene
@@ -100,17 +100,9 @@ public class PhysicScene
     public void Update(float dT)
     {
         dT /= (float)this.PhysSteps;
-
         for (int step = 0; step < this.PhysSteps; step++)
         {
             this.CollisionManifolds.Clear();
-
-            // Apply constraints
-            foreach (var constraint in this.constraints)
-            {
-                constraint.Apply(dT);
-            }
-
             for (int i = 0; i < this.bodies.Count; i++)
             {
                 // Apply gravity
@@ -136,15 +128,6 @@ public class PhysicScene
                         {
                             CollisionSolver.Move(manifold);
                             this.CollisionManifolds.Add(manifold);
-                            if (!bodyA.IsStatic)
-                            {
-                                bodyA.IsFrozen = false;
-                            }
-
-                            if (!bodyB.IsStatic)
-                            {
-                                bodyB.IsFrozen = false;
-                            }
                         }
                     }
                 }
@@ -162,6 +145,12 @@ public class PhysicScene
                 manifold.BodyB.InvokeOnCollision(manifold.BodyA, -manifold.Normal);
             }
 
+            // Apply constraints
+            foreach (var constraint in this.constraints)
+            {
+                constraint.Apply(dT);
+            }
+
             // Air drag
             foreach (var body in this.bodies)
             {
@@ -174,13 +163,16 @@ public class PhysicScene
         {
             foreach (var body in this.bodies)
             {
-                body.TryFreeze(this.MinLinearVelocity, this.MinAngularVelocity, this.FreezeDelay);
+                body.TryFreeze();
             }
         }
     }
 
     public void AddBody(RigidBody body)
-        => this.bodies.Add(body);
+    {
+        body.physicScene = this;
+        this.bodies.Add(body);
+    }
 
     /// <summary>
     /// Ensures that all related constraints are also removed
@@ -188,6 +180,7 @@ public class PhysicScene
     public void RemoveBody(RigidBody body)
     {
         this.constraints.RemoveAll(c => c.Contains(body));
+        body.physicScene = null;
         this.bodies.Remove(body);
     }
 

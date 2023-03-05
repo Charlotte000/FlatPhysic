@@ -25,7 +25,8 @@ public class PolygonBody : RigidBody
     {
         this.Vertices = vertices;
 
-        var size = this.BoundgingSize();
+        this.UpdateBoundingBox();
+        var size = this.BoundingBox.Size;
         var sizeSq = size * size;
         this.Inertia = this.Mass * (sizeSq.X + sizeSq.Y) / 12;
     }
@@ -79,13 +80,8 @@ public class PolygonBody : RigidBody
 
     protected override void UpdateBoundingBox()
     {
-        this.BoundingBox = new(this.Position, this.BoundgingSize());
-    }
-
-    private FlatVector BoundgingSize()
-    {
         float minX = float.MaxValue, maxX = float.MinValue, minY = float.MaxValue, maxY = float.MinValue;
-        foreach (var v in this.Vertices)
+        foreach (var v in this.AbsoluteVertices())
         {
             minX = MathF.Min(minX, v.X);
             minY = MathF.Min(minY, v.Y);
@@ -94,7 +90,10 @@ public class PolygonBody : RigidBody
             maxY = MathF.Max(maxY, v.Y);
         }
 
-        return new(maxX - minX, maxY - minY);
+        var leftUp = new FlatVector(minX, minY);
+        var rightDown = new FlatVector(maxX, maxY);
+
+        this.BoundingBox = new((rightDown + leftUp) / 2, rightDown - leftUp);
     }
 
     /// <summary>

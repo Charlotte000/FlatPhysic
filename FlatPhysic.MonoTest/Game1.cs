@@ -5,6 +5,7 @@ using FlatPhysic.Constraints;
 using FlatPhysic.MonoDrawer;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using System;
 
 public class Game1 : Game
 {
@@ -17,13 +18,18 @@ public class Game1 : Game
         this.graphics = new GraphicsDeviceManager(this)
         { PreferredBackBufferWidth = 500, PreferredBackBufferHeight = 500 };
         this.IsMouseVisible = true;
-        this.physicScene = new() { AllowFreeze = false };
+        this.physicScene = new();
         //this.TargetElapsedTime = TimeSpan.FromSeconds(1d / 2);
 
         this.Window.KeyDown += (s, e) =>
         {
-            if (e.Key == Keys.E)
-                this.physicScene.RemoveBody(this.physicScene.Bodies[^1]);
+            switch (e.Key)
+            {
+                case Keys.W:
+                    this.physicScene.AddBody(PolygonBody.CreateRegularPolygon(Mouse.GetState().Position.ToFlat(), new(40, 40), 6, 1));
+                    //this.physicScene.AddBody(new CircleBody(Mouse.GetState().Position.ToFlat(), 20, 1));
+                    break;
+            }
         };
 
         this.physicScene.AddBody(PolygonBody.CreateBox(new(250, 450), new(510, 20)));
@@ -33,7 +39,7 @@ public class Game1 : Game
 
         for (int i = 0; i < bs.Length; i++)
         {
-            var a = PolygonBody.CreateBox(new(100 + (size * i), 150), new(size, 5), 1);
+            var a = PolygonBody.CreateBox(new(100 + (size * i), 150), new(size, 5), 1f);
             this.physicScene.AddBody(a);
             bs[i] = a;
         }
@@ -57,21 +63,12 @@ public class Game1 : Game
             }
         }
 
-        this.Components.Add(new MonoDrawer(this, this.physicScene));
+        this.Components.Add(new MonoDrawer(this, this.physicScene) { BoundingBox = true, CollisionPoint = true });
     }
 
     protected override void Update(GameTime gameTime)
     {
-        var keyboard = Keyboard.GetState();
-        var mouse = Mouse.GetState();
-
-        if (keyboard.IsKeyDown(Keys.W))
-        {
-            this.physicScene.AddBody(new CircleBody(mouse.Position.ToFlat(), 10, 1));
-        }
-
         this.physicScene.Update((float)gameTime.ElapsedGameTime.TotalSeconds);
-
         base.Update(gameTime);
     }
 

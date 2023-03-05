@@ -20,6 +20,8 @@ public abstract class RigidBody
 
     private float angle;
 
+    internal PhysicScene? physicScene;
+
     /// <summary>
     /// Creates a static rigid body
     /// </summary>
@@ -55,7 +57,7 @@ public abstract class RigidBody
 
     public event EventHandler<CollisionEventArgs>? OnCollision;
 
-    public bool IsStatic { get; set; }
+    public bool IsStatic { get; }
 
     /// <summary>
     /// Is the body frozen
@@ -159,6 +161,15 @@ public abstract class RigidBody
     {
         this.LinearVelocity += vector * this.MassInv;
         this.AngularVelocity += FlatVector.Cross(point - this.Position, vector) * this.InertiaInv;
+
+        if (this.physicScene is not null)
+        {
+            if (!MathUtils.NearlyEqual(this.LinearVelocity, FlatVector.Zero, this.physicScene.MinLinearVelocity) ||
+                !MathUtils.NearlyEqual(this.AngularVelocity, 0, this.physicScene.MinAngularVelocity))
+            {
+                this.IsFrozen &= this.IsStatic;
+            }
+        }
     }
 
     /// <summary>
@@ -170,14 +181,19 @@ public abstract class RigidBody
         return this.LinearVelocity + (perpendicular * this.AngularVelocity);
     }
 
-    internal void TryFreeze(float minLinearVelocity, float minAngularVelocity, uint freezeDelay)
+    internal void TryFreeze()
     {
-        if (MathUtils.NearlyEqual(this.LinearVelocity, FlatVector.Zero, minLinearVelocity) &&
-            MathUtils.NearlyEqual(this.AngularVelocity, 0, minAngularVelocity))
+        if (this.physicScene is null)
+        {
+            return;
+        }
+
+        if (MathUtils.NearlyEqual(this.LinearVelocity, FlatVector.Zero, this.physicScene.MinLinearVelocity) &&
+            MathUtils.NearlyEqual(this.AngularVelocity, 0, this.physicScene.MinAngularVelocity))
         {
             this.frozenCount++;
 
-            if (this.frozenCount >= freezeDelay)
+            if (this.frozenCount >= this.physicScene.FreezeDelay)
             {
                 this.frozenCount = 0;
                 this.IsFrozen = true;
