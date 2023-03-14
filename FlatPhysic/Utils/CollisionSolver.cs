@@ -74,13 +74,13 @@ internal static class CollisionSolver
         {
             var collisionPoint = CollisionSolver.collisionPoints[i];
 
-            var bPerp = (collisionPoint - manifold.BodyA.Position).Perpendicular();
-            var aPerp = (collisionPoint - manifold.BodyB.Position).Perpendicular();
+            var aPerp = (collisionPoint - manifold.BodyA.Position).Perpendicular();
+            var bPerp = (collisionPoint - manifold.BodyB.Position).Perpendicular();
             CollisionSolver.aPerps[i] = aPerp;
             CollisionSolver.bPerps[i] = bPerp;
 
-            var relativeVelocity = manifold.BodyB.LinearVelocity + (aPerp * manifold.BodyB.AngularVelocity) -
-                manifold.BodyA.LinearVelocity - (bPerp * manifold.BodyA.AngularVelocity);
+            var relativeVelocity = manifold.BodyB.LinearVelocity + (bPerp * manifold.BodyB.AngularVelocity) -
+                manifold.BodyA.LinearVelocity - (aPerp * manifold.BodyA.AngularVelocity);
 
             var contactVelocityMag = FlatVector.Dot(relativeVelocity, manifold.Normal);
             if (contactVelocityMag < 0)
@@ -88,8 +88,8 @@ internal static class CollisionSolver
                 continue;
             }
 
-            var rAPerpDotN = FlatVector.Dot(bPerp, manifold.Normal);
-            var rBPerpDotN = FlatVector.Dot(aPerp, manifold.Normal);
+            var rAPerpDotN = FlatVector.Dot(aPerp, manifold.Normal);
+            var rBPerpDotN = FlatVector.Dot(bPerp, manifold.Normal);
             var normalImpulseMag = -(1 + restitution) * contactVelocityMag;
             normalImpulseMag /= manifold.BodyA.MassInv +
                 manifold.BodyB.MassInv +
@@ -119,8 +119,8 @@ internal static class CollisionSolver
         {
             var aPerp = CollisionSolver.aPerps[i];
             var bPerp = CollisionSolver.bPerps[i];
-            var relativeVelocity = manifold.BodyB.LinearVelocity + (aPerp * manifold.BodyB.AngularVelocity) -
-                manifold.BodyA.LinearVelocity - (bPerp * manifold.BodyA.AngularVelocity);
+            var relativeVelocity = manifold.BodyB.LinearVelocity + (bPerp * manifold.BodyB.AngularVelocity) -
+                manifold.BodyA.LinearVelocity - (aPerp * manifold.BodyA.AngularVelocity);
 
             var tangent = relativeVelocity - (FlatVector.Dot(relativeVelocity, manifold.Normal) * manifold.Normal);
             if (tangent == FlatVector.Zero)

@@ -44,6 +44,10 @@ public readonly record struct Spring(
         var p1 = this.GetMountPointA();
         var p2 = this.GetMountPointB();
         var delta = p2 - p1;
+        if (delta == FlatVector.Zero)
+        {
+            return;
+        }
 
         var length = delta.Length();
 
