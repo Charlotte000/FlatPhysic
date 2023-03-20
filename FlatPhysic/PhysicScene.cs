@@ -131,8 +131,6 @@ public class PhysicScene
                         }
                     }
                 }
-
-                this.bodies[i].Move(dT);
             }
 
             // Collision solving
@@ -155,6 +153,12 @@ public class PhysicScene
             foreach (var body in this.bodies)
             {
                 body.ApplyAirFriction(dT);
+            }
+
+            // Move
+            foreach (var body in this.bodies)
+            {
+                body.Move(dT);
             }
         }
 

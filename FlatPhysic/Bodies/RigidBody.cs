@@ -32,13 +32,8 @@ public abstract class RigidBody
     public RigidBody(FlatVector position)
     {
         this.Position = position;
-        
-        this.mass = float.MaxValue;
-        this.massInv = 0;
-
-        this.inertia = float.MaxValue;
-        this.inertiaInv = 0;
-
+        this.Mass = float.PositiveInfinity;
+        this.Inertia = float.PositiveInfinity;
         this.IsStatic = true;
     }
 
@@ -104,7 +99,7 @@ public abstract class RigidBody
         set
         {
             this.mass = value;
-            this.massInv = 1 / value;
+            this.massInv = float.IsPositiveInfinity(value) || value == float.MaxValue ? 0 : 1 / value;
         }
     }
 
@@ -114,7 +109,7 @@ public abstract class RigidBody
         set
         {
             this.massInv = value;
-            this.mass = 1 / value;
+            this.mass = float.IsPositiveInfinity(value) || value == float.MaxValue ? 0 : 1 / value;
         }
     }
 
@@ -124,7 +119,7 @@ public abstract class RigidBody
         set
         {
             this.inertia = value;
-            this.inertiaInv = 1 / value;
+            this.inertiaInv = float.IsPositiveInfinity(value) || value == float.MaxValue ? 0 : 1 / value;
         }
     }
 
@@ -134,7 +129,7 @@ public abstract class RigidBody
         set
         {
             this.inertiaInv = value;
-            this.inertia = 1 / value;
+            this.inertia = float.IsPositiveInfinity(value) || value == float.MaxValue ? 0 : 1 / value;
         }
     }
 
@@ -162,14 +157,7 @@ public abstract class RigidBody
         this.LinearVelocity += vector * this.MassInv;
         this.AngularVelocity += FlatVector.Cross(point - this.Position, vector) * this.InertiaInv;
 
-        if (this.physicScene is not null)
-        {
-            if (!MathUtils.NearlyEqual(this.LinearVelocity, FlatVector.Zero, this.physicScene.MinLinearVelocity) ||
-                !MathUtils.NearlyEqual(this.AngularVelocity, 0, this.physicScene.MinAngularVelocity))
-            {
-                this.IsFrozen &= this.IsStatic;
-            }
-        }
+        this.TryUnfreeze();
     }
 
     /// <summary>
@@ -205,6 +193,20 @@ public abstract class RigidBody
         else
         {
             this.frozenCount = 0;
+        }
+    }
+    
+    internal void TryUnfreeze()
+    {
+        if (this.physicScene is null)
+        {
+            return;
+        }
+
+        if (!MathUtils.NearlyEqual(this.LinearVelocity, FlatVector.Zero, this.physicScene.MinLinearVelocity) ||
+                !MathUtils.NearlyEqual(this.AngularVelocity, 0, this.physicScene.MinAngularVelocity))
+        {
+            this.IsFrozen &= this.IsStatic;
         }
     }
 
